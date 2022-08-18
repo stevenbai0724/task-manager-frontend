@@ -10,8 +10,9 @@ import ringer from "./assets/nokia.mp3"
 import Task from "./components/Task.js"
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import HelpIcon from '@mui/icons-material/Help';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import Card from "./components/Card.js"
+import Notes from "./components/Notes.js"
 
 const useStyles = makeStyles((theme) => ({
   div: {
@@ -44,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "flex-start",
     flexDirection: "column",
     alignItems: "left",
+    
   },
   topbar: {
     marginTop: "20px",
@@ -85,15 +87,12 @@ const useStyles = makeStyles((theme) => ({
     marginTop: "10px",
     boxShadow: "rgba(100, 100, 111, 0.2) 1px 4px 5px 2px",
     borderRadius: "20px",
-    
   },
   textBox: {
     wordWrap: "break-word",
     maxWidth: "500px",
     height: "calc(100% - 40px)",
     padding: "20px",
-
-
   },
   icon: {
       fontSize: "small",
@@ -106,6 +105,7 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 10px 0px",
     width: "100%",
     height: "150px",
+    marginBottom: "10px",
   },
   h1: {
     color: "white",
@@ -133,6 +133,7 @@ function App() {
   const isMounted = useRef(false);
   const [isTimerOpen, setIsTimerOpen] = useState(false);
   const [isTaskOpen, setIsTaskOpen] = useState(false);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [song, setSong] = useState(new Audio(ringer))
 
   const classes = useStyles();
@@ -165,14 +166,14 @@ function App() {
     setTasks(temp);
     setClick(click + 1);
   };
-  const append = msg => {
-
-      setTasks([...tasks, msg].sort((a, b) =>a.task > b.task ? 1 : -1,))
+  const append = (msg) => {
+  
+      setTasks([...tasks, msg].sort((a, b) => b.priority - a.priority))
 
       setClick(click + 1);
+
+      console.log(msg);
       
-      
-    
   };
   const handleTimerClose = () => {
     setIsTimerOpen(false);
@@ -193,6 +194,13 @@ function App() {
   const handleTaskOpen = () => {
     setIsTaskOpen(true);
   }
+  const handleNotesClose = () => {
+    setIsNotesOpen(false);
+  }
+  const handleNotesOpen = () => {
+    setIsNotesOpen(true);
+  }
+
 
 
   return (
@@ -200,6 +208,8 @@ function App() {
       <Timer open = {isTimerOpen} handleTimerOpen = {handleTimerOpen} handleTimerClose = {handleTimerClose} handleSongPause = {handleSongPause} handleSongStart = {handleSongStart} />   
 
       <Task append = {append} open = {isTaskOpen} handleTaskClose = {handleTaskClose}> </Task>
+
+      <Notes open = {isNotesOpen} handleNotesClose = {handleNotesClose}></Notes>
 
       <div className = {classes.container}>
 
@@ -222,14 +232,15 @@ function App() {
             tasks.map((obj, index) => {
               
             return(
-              <div key = {index} className = {classes.card}>
-                <div className = {classes.textBox}>
-                  <h1 style = {{fontSize: "18pt", verticalAlign: "top", display: "inline", fontWeight: "normal"}}>{obj.task}</h1>
-                </div>
-                <IconButton onClick = {() => handleDelete(index)} className = {classes.iconButton}>
-                  <CheckBoxOutlineBlankIcon sx={{ color: "#8e5ff3" }} fontSize = "large"></CheckBoxOutlineBlankIcon>
-                </IconButton>
-              </div>
+              <Card 
+                priority = {obj.priority} 
+                key = {index} 
+                index = {index} 
+                task = {obj.task} 
+                handleDelete = {handleDelete}>
+
+
+              </Card>
             )
               
             })
@@ -259,66 +270,17 @@ function App() {
         <div className= {classes.right}>
           <h1 className= {classes.h1}>Tools</h1>
 
-          <ButtonBase onClick = {handleTimerOpen} style = {{borderRadius: "20px", color: "white"}} className = {classes.button}>
+          <ButtonBase onClick = {handleTimerOpen} style = {{borderRadius: "20px", color: "white", marginBottom: "20px"}} className = {classes.button}>
             <TimerIcon sx={{ color: "#8e5ff3" }} style = {{width : "30px", height: "30px", marginRight: "5px"}} /> <h2>Timer</h2> 
         
           </ButtonBase>
 
-          {/* <ButtonBase onClick = {handleTaskOpen} style = {{borderRadius: "20px", color: "white"}} className = {classes.button}>
-            <AddBoxIcon sx={{ color: "#8e5ff3" }} style = {{width : "30px", height: "30px", marginRight: "5px"}} /> <h2>New Task</h2> 
-          </ButtonBase> */}
-
-        </div>
-
-
-      {/* <div className = {classes.topbar}> */}
-
-        {/* <ButtonBase onClick = {handleTimerOpen} style = {{borderRadius: "20px", color: "white"}} className = {classes.button}>
-          <TimerIcon sx={{ color: "#8e5ff3" }} style = {{width : "30px", height: "30px", marginRight: "5px"}} /> <h2>Timer</h2> 
-          <HelpIcon style = {{position: "absolute", top: "5px", right: "5px", color: "#8e5ff3"}}></HelpIcon>
-        </ButtonBase>
-        <ButtonBase onClick = {handleTaskOpen} style = {{borderRadius: "20px", color: "white"}} className = {classes.button}>
-        <AddBoxIcon sx={{ color: "#8e5ff3" }} style = {{width : "30px", height: "30px", marginRight: "5px"}} /> <h2>New Task</h2> 
-        </ButtonBase>
-      </div>
-      <br></br>
-      <div style = {{width: "500px"}}>
-        <div style = {{display: "flex", height: "100px", flexDirection: "row", width: "200px", justifyContent: "space-between", alignItems: "center" }}>
-          <h2 style = {{color: "white"}}>In Progress</h2>
-          <ButtonBase style = {{width: "50px", height: "50px", borderRadius: "50%", borderColor: "white", borderStyle: "solid", borderWidth: "2px"}}>
-              <h1 style = {{color: "white"}}>{tasks.length}</h1>
+          <ButtonBase onClick = {handleNotesOpen} style = {{borderRadius: "20px", color: "white"}} className = {classes.button}>
+            <EventNoteIcon sx={{ color: "#8e5ff3" }} style = {{width : "30px", height: "30px", marginRight: "5px"}} /> <h2>Notes</h2> 
+        
           </ButtonBase>
+
         </div>
-
-        {
-          tasks.map((name, index) => {
-            
-          return(
-            <div key = {index} className = {classes.card}>
-              <div className={classes.textBox}>
-                <h5 style = {{fontWeight: "normal", lineHeight: "1.4"}}>{name}</h5>
-              </div>
-              <IconButton onClick = {() => handleDelete(index)} className = {classes.iconButton}>
-                <CheckBoxOutlineBlankIcon sx={{ color: "#8e5ff3" }} fontSize = "large"></CheckBoxOutlineBlankIcon>
-              </IconButton>
-            </div>
-          )
-            
-          })
-        }
-
-      </div>
-      <br></br>
-      <br></br>
-      <br></br>
-
-      <Timer open = {isTimerOpen} handleTimerOpen = {handleTimerOpen} handleTimerClose = {handleTimerClose} handleSongPause = {handleSongPause} handleSongStart = {handleSongStart} />   
-
-      <Task append = {append} open = {isTaskOpen} handleTaskClose = {handleTaskClose}> </Task> */}
-      
-
-
-
 
       </div>
 

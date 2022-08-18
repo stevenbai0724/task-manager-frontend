@@ -1,9 +1,11 @@
 import React from 'react'
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useRef} from 'react'
 import {makeStyles} from "@mui/styles"
 import {Button, ButtonBase} from "@mui/material"
 import { Modal } from '@mui/material';
-import { useRadioGroup } from '@mui/material/RadioGroup';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -80,29 +82,64 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
 
-    height: "60px",
+    height: "40px",
     display: "inline-block"
   },
   buttonText: {
     fontSize: "12pt",
     fontWeight: "normal"
   },
+  radioGroup: {
+    color: "white",
+    marginBottom: "20px"
+  },
+
 }))
 
 function Task(props) {
   const classes = useStyles();
   const [val, setVal] = useState("");
+  const [priority, setPriority] = useState(1);
+  const [obj, setObj] = useState({
+    task: "(empty task)",
+    priority: 1,
+  });
 
   const handleOnChange = (e) => {
     setVal(e.target.value);
+    let temp = {task: e.target.value}
+    setObj(obj => ({
+      ...obj,
+      ...temp
+    }))
   }
+  //after add task, clear the task to (empty task) but keep the last priority setting the same
   const pressed = () => {
-      {props.append({
-        task: val,
-        priority: 1,
-      })}
-      setVal("")
+    props.append(obj);
+    setVal("")
+    let temp = {task: "(empty task)"}
+    setObj(obj => ({
+      ...obj,
+      ...temp,
+    }));
   }
+  const onChange = (evt) => {
+    setPriority(parseInt(evt.target.value));
+    let temp = {priority: parseInt(evt.target.value)}
+    setObj(obj => ({
+      ...obj,
+      ...temp
+    }))
+  }
+  //debug
+  const isMounted = useRef(false);
+  useEffect(() => {
+    if(isMounted.current){
+      console.log(obj)
+    }
+    else isMounted.current = true;
+  }, [priority])
+
   return (
     <div className = {classes.container}>
       <Modal  
@@ -119,6 +156,40 @@ function Task(props) {
             onChange = {handleOnChange}
             value = {val}
           /> 
+          <h1 style = {{fontSize: "15pt"}}>Select task priority: </h1>
+          <RadioGroup
+            className={classes.radioGroup}
+            row
+            value = {priority}
+            onChange = {onChange}
+          >
+            <FormControlLabel value={1} control= {<Radio 
+              sx={{
+              color: "white",
+              "&.Mui-checked": {
+                color: "#37f992"
+              }
+            }} />} label="Low" />
+
+            <FormControlLabel value={2} control={<Radio 
+             sx={{
+              color: "white",
+              "&.Mui-checked": {
+                color: "#f2a53f"
+              }
+            }}/>} label="Medium" />
+
+            <FormControlLabel value={3} control={<Radio  
+              sx={{
+              color: "white",
+              "&.Mui-checked": {
+                color: "#e62a19"
+              }
+            }}/>} label="High" />
+
+          </RadioGroup>
+
+
           <br></br>
           <div style = {{position: "absolute", bottom: "10px", width: "95%", textAlign: "center"}}>
           <Button className = {classes.button} onClick = {pressed}>
