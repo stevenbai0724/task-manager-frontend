@@ -85,11 +85,13 @@ function Timer(props) {
   const [workTime, setWorkTime] = useState(1500);
   const [breakTime, setBreakTime] = useState(300);
   const [isRunning, setIsRunning] = useState(false);
+  const [initial, setInitial] = useState(true);
   const isMounted = useRef(false);
   const isMounted2 = useRef(false);
 
   const handleSkip = () => {
     console.log("skipped")
+    setInitial(false);
     if(working){
       setWorking(false);
       setPause("Start");
@@ -143,21 +145,7 @@ function Timer(props) {
 
   }, [pause, timeleft]);
 
-  useEffect (() => {
-    if(isMounted2.current){
-      var temp = breakTime;
-      localStorage.setItem('breakTime', JSON.stringify(breakTime))
-      setHours(Math.floor(temp/3600));
-      temp = temp % 3600;
-      setMinutes(Math.floor(temp/60));
-      temp = temp % 60;
-      setSeconds(temp);
-      setTimeleft(breakTime);
-    }
-    else{
-      isMounted2.current = true;
-    }
-  }, [breakTime])
+
 
   useEffect (() => {
     if(isMounted.current){
@@ -174,21 +162,39 @@ function Timer(props) {
 
   }, [workTime])
 
+  useEffect (() => {
+    if(isMounted2.current){
+      var temp = breakTime;
+      localStorage.setItem('breakTime', JSON.stringify(breakTime))
+      if(!initial){
+        setHours(Math.floor(temp/3600));
+        temp = temp % 3600;
+        setMinutes(Math.floor(temp/60));
+        temp = temp % 60;
+        setSeconds(temp);
+        setTimeleft(breakTime);
+      }
 
+    }
+    else{
+      isMounted2.current = true;
+    }
+  }, [breakTime])
 
   useEffect (() => {
     const temp1 = JSON.parse(localStorage.getItem('workTime'));
     const temp2 = JSON.parse(localStorage.getItem('breakTime'));
 
-    if(temp1){
-      console.log("retreive" + temp1)
-      setWorkTime(temp1);
-      setTimeleft(temp1);
-    }
     if(temp2){
       console.log("retreive " + temp2)
       setBreakTime(temp2);
     }
+    if(temp2){
+      console.log("retreive" + temp1)
+      setWorkTime(temp1);
+      setTimeleft(temp1);
+    }
+
   }, [])
 
   const handleUpButton = (secs) => {
@@ -251,6 +257,7 @@ function Timer(props) {
             <Button 
               onClick = {() => {
                 props.handleSongPause()
+                setInitial(false);
                 if(pause === "Start"){
                   setPause("Pause");
                   setInt(1000);
