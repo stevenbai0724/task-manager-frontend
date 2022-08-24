@@ -135,7 +135,7 @@ function App() {
   const [isTaskOpen, setIsTaskOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [song, setSong] = useState(new Audio(ringer))
-
+  const [count, setCount] = useState(0);
   const classes = useStyles();
 
   //gets existing items from local storage on render (once)
@@ -160,11 +160,37 @@ function App() {
 
   }, [click])
 
+  useEffect(() => {
+    let temp = [...tasks];
+    let cnt = 0;
+
+    for(let i=0;i<temp.length;i++){
+      if(!temp[i].complete)cnt++;
+    }
+
+    setCount(cnt);
+
+  }, [tasks])
+
+
   const handleDelete = (index) => {
-    let temp = [...tasks]
-    temp.splice(index, 1);
-    setTasks(temp);
-    setClick(click + 1);
+    let arr = [...tasks];
+
+    if(arr[index].complete){
+      arr.splice(index, 1);
+      setTasks(arr);
+      setClick(click + 1);
+    }
+    else{
+      let temp = {
+        ...arr[index],
+        complete: true,
+      }
+      arr[index] = temp;
+      setTasks(arr);
+      setClick(click + 1);      
+    }
+
   };
   const append = (msg) => {
   
@@ -219,7 +245,7 @@ function App() {
           <div className = {classes.taskSubtitle}>
             <h2 className = {classes.h2}>In Progress</h2>
             <ButtonBase style = {{width: "35px", height: "35px", borderRadius: "50%", borderColor: "white", borderStyle: "solid", borderWidth: "2px", marginLeft: "10px"}}>
-              <h2 className = {classes.h2}>{tasks.length}</h2>
+              <h2 className = {classes.h2}>{count}</h2>
             </ButtonBase>
           </div>
 
@@ -230,15 +256,19 @@ function App() {
 
           {
             tasks.map((obj, index) => {
-              
+            
             return(
+              !obj.complete && 
+              
               <Card 
                 priority = {obj.priority} 
                 key = {index} 
                 index = {index} 
                 task = {obj.task} 
-                handleDelete = {handleDelete}>
-
+                handleDelete = {handleDelete}
+                complete = {obj.complete}
+                >
+                
 
               </Card>
             )
@@ -255,10 +285,32 @@ function App() {
             <h2 className = {classes.h2}>Completed</h2>
 
             <ButtonBase style = {{width: "35px", height: "35px", borderRadius: "50%", borderColor: "white", borderStyle: "solid", borderWidth: "2px", marginLeft: "10px"}}>
-              <h2 className = {classes.h2}>{tasks.length}</h2>
+              <h2 className = {classes.h2}>{tasks.length - count}</h2>
             </ButtonBase>
 
           </div>
+
+          {
+            tasks.map((obj, index) => {
+              
+            return(
+              obj.complete && 
+              
+              <Card 
+                priority = {obj.priority} 
+                key = {index} 
+                index = {index} 
+                task = {obj.task} 
+                handleDelete = {handleDelete}
+                complete = {obj.complete}
+              >
+                
+
+              </Card>
+            )
+              
+            })
+          }
           <br></br>
           <br></br>
           <br></br>

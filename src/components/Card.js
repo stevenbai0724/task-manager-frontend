@@ -3,6 +3,7 @@ import {makeStyles} from "@mui/styles"
 import { ButtonBase, IconButton} from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 const useStyles = makeStyles((theme) => ({
 
@@ -85,7 +86,12 @@ function Card(props) {
 
 
         <IconButton onClick = {() => props.handleDelete(props.index)} className = {classes.iconButton}>
-            <CheckBoxOutlineBlankIcon sx={{ color: "#8e5ff3" }} fontSize = "large"></CheckBoxOutlineBlankIcon>
+            {
+                !props.complete && <CheckBoxOutlineBlankIcon sx={{ color: "#8e5ff3" }} fontSize = "large"></CheckBoxOutlineBlankIcon>
+            }
+            {
+                props.complete && <CheckBoxIcon sx={{ color: "#8e5ff3" }} fontSize = "large"></CheckBoxIcon>
+            }
         </IconButton>
 
     </div>

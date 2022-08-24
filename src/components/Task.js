@@ -103,6 +103,7 @@ function Task(props) {
   const [obj, setObj] = useState({
     task: "(empty task)",
     priority: 1,
+    complete: false,
   });
 
   const handleOnChange = (e) => {
